@@ -9,10 +9,14 @@
 import UIKit
 import Twitter
 
-class TweetTableViewController: UITableViewController {
+class TweetTableViewController: UITableViewController, UITextFieldDelegate {
 
     // MARK: Model
-    private var tweets = [Array<Twitter.Tweet>]() // array of array of Tweet
+    private var tweets = [Array<Twitter.Tweet>]() {// array of array of Tweet
+        didSet {
+            print(tweets) // for testing
+        }
+    }
     
     var searchText: String? {
         didSet {
@@ -20,7 +24,10 @@ class TweetTableViewController: UITableViewController {
             tableView.reloadData()
             searchForTweets()
             title = searchText
-            print(tweets) // for testing
+            
+            // update textTextField
+            searchTextField?.text = searchText
+            searchTextField?.resignFirstResponder() // let keyboard away from the screen.
         }
     }
     
@@ -43,6 +50,9 @@ class TweetTableViewController: UITableViewController {
                 
                 if request == self?.currentRequest { // check the request is still the same, even after the fetching.
                     self?.tweets.insert(newTweets, at: 0)
+                    DispatchQueue.main.async {
+                        self?.tableView.insertSections([0], with: .fade)
+                    }
                 } else {
                     // ignore, because the request has been changed.
                     // currentRequest is changed to more recent request on the main queue.
@@ -55,29 +65,50 @@ class TweetTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // automatic row-height set
+        tableView.estimatedRowHeight = tableView.rowHeight
+        tableView.rowHeight = UITableViewAutomaticDimension
+        
         // for testing
-        searchText = "#stanford"
+        //searchText = "#stanford"
+    }
+    @IBOutlet weak var searchTextField: UITextField! {
+        didSet {
+            searchTextField.delegate = self
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == searchTextField {
+            searchText = searchTextField.text
+        }
+        return true // nothing happens, just return in this case.
     }
     
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return tweets.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return tweets[section].count
     }
 
-    /*
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Tweet", for: indexPath)
 
         // Configure the cell...
+        let tweet = tweets[indexPath.section][indexPath.row]
+        
+        if let tweetCell = cell as? TweetTableViewCell {
+            tweetCell.tweet = tweet
+        }
 
         return cell
     }
-    */
+    
 }

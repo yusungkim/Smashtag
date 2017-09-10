@@ -14,6 +14,7 @@
 		39487B991F64FC2A00216C60 /* TweetTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39487B981F64FC2A00216C60 /* TweetTableViewController.swift */; };
 		39487BA11F65081D00216C60 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39487BA01F65081D00216C60 /* Twitter.framework */; };
 		39487BA21F65081D00216C60 /* Twitter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39487BA01F65081D00216C60 /* Twitter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		39487BA51F6578C500216C60 /* TweetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39487BA41F6578C400216C60 /* TweetTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,7 @@
 		392C7E131F64FB77002123B0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		39487B981F64FC2A00216C60 /* TweetTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetTableViewController.swift; sourceTree = "<group>"; };
 		39487BA01F65081D00216C60 /* Twitter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Twitter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		39487BA41F6578C400216C60 /* TweetTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +77,7 @@
 			children = (
 				39487B981F64FC2A00216C60 /* TweetTableViewController.swift */,
 				392C7E0B1F64FB77002123B0 /* Main.storyboard */,
+				39487BA41F6578C400216C60 /* TweetTableViewCell.swift */,
 				392C7E131F64FB77002123B0 /* Info.plist */,
 				39487B971F64FBE000216C60 /* Supporting Files */,
 			);
@@ -167,6 +170,7 @@
 			files = (
 				392C7E081F64FB77002123B0 /* AppDelegate.swift in Sources */,
 				39487B991F64FC2A00216C60 /* TweetTableViewController.swift in Sources */,
+				39487BA51F6578C500216C60 /* TweetTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

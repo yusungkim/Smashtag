@@ -39,12 +39,13 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate {
     
     private func twitterRequest() -> Twitter.Request? {
         if let query = searchText, !query.isEmpty { // searchText is neither nil nor empty
-            return Twitter.Request(search: query, count: 100)
+            return Twitter.Request(search: "\(query) -filter:safe -filter:retweets", count: 100)
         }
         return nil
     }
     
     private var lastTwitterRequest: Twitter.Request?
+    
     private func searchForTweets() {
         if let request = lastTwitterRequest?.newer ?? twitterRequest() {
             lastTwitterRequest = request

@@ -10,24 +10,30 @@ import UIKit
 import Twitter
 
 class TweetTableViewController: UITableViewController, UITextFieldDelegate {
-
+    
     // MARK: Model
     private var tweets = [Array<Twitter.Tweet>]() {// array of array of Tweet
         didSet {
-            print(tweets) // for testing
+            //print(tweets) // for testing
+            
+            // it doesn't reloadData() here, because that work is heavy.
+            // instead we are going to add (insert) the new tweets to the tableView only.
+            // see, the searchForTweets() function.
         }
     }
     
     var searchText: String? {
         didSet {
-            tweets.removeAll()
-            tableView.reloadData()
-            searchForTweets()
-            title = searchText
-            
             // update textTextField
             searchTextField?.text = searchText
             searchTextField?.resignFirstResponder() // let keyboard away from the screen.
+            
+            // clear prevoius data
+            tweets.removeAll()
+            tableView.reloadData()
+            
+            searchForTweets()
+            title = searchText
         }
     }
     
@@ -38,28 +44,35 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate {
         return nil
     }
     
-    private var currentRequest: Twitter.Request?
+    private var lastTwitterRequest: Twitter.Request?
     private func searchForTweets() {
-        if let request = twitterRequest() {
-            currentRequest = request
+        if let request = lastTwitterRequest?.newer ?? twitterRequest() {
+            lastTwitterRequest = request
             
             // request.fetchTweets( ([Tweet]) -> void )
             // takes closure, a function, which is excuted when the fetch job is done.
             // because, the fetch is worked on a different queue.
-            request.fetchTweets { [weak self] newTweets in
+            request.fetchTweets { [weak self] newTweets in // this is off the main queue
                 
-                if request == self?.currentRequest { // check the request is still the same, even after the fetching.
-                    self?.tweets.insert(newTweets, at: 0)
-                    DispatchQueue.main.async {
-                        self?.tableView.insertSections([0], with: .fade)
+                DispatchQueue.main.async {
+                    if request == self?.lastTwitterRequest { // check the request is still the same, even after the fetching.
+                        self?.tweets.insert(newTweets, at: 0)
+                        self?.tableView.insertSections([0], with: .fade) // instead of reloadData(), only insert new data on the display.
+                    } else {
+                        // ignore, because the request has been changed.
+                        // currentRequest is changed to more recent request on the main queue.
+                        // request in this queue is no more relevent.
                     }
-                } else {
-                    // ignore, because the request has been changed.
-                    // currentRequest is changed to more recent request on the main queue.
-                    // request in this queue is no more relevent.
+                    self?.refreshControl?.endRefreshing()
                 }
             }
+        } else {
+            self.refreshControl?.endRefreshing()
         }
+    }
+    
+    @IBAction func refresh(_ sender: UIRefreshControl) {
+        searchForTweets()
     }
     
     override func viewDidLoad() {
@@ -72,6 +85,7 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate {
         // for testing
         //searchText = "#stanford"
     }
+    
     @IBOutlet weak var searchTextField: UITextField! {
         didSet {
             searchTextField.delegate = self
@@ -86,29 +100,32 @@ class TweetTableViewController: UITableViewController, UITextFieldDelegate {
     }
     
     // MARK: - Table view data source
-
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return tweets.count
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return tweets[section].count
     }
-
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Tweet", for: indexPath)
-
+        
         // Configure the cell...
         let tweet = tweets[indexPath.section][indexPath.row]
         
         if let tweetCell = cell as? TweetTableViewCell {
             tweetCell.tweet = tweet
         }
-
+        
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "\(tweets.count - section)"
+    }
 }
